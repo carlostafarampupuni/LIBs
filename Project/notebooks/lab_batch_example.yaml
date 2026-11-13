@@ -1,0 +1,67 @@
+# Example electrode/slurry/N-P batch file for the lab calculator folded
+# into battery_analysis/ (lab_electrode.py, lab_slurry.py, lab_np_ratio.py,
+# lab_batch.py). Reproduces an "LFP Cathode"-style formulation sheet.
+#
+#     project.run_lab_batch("lab_batch_example.yaml")
+#
+# Writes electrodes_results.csv, slurries_components.csv,
+# slurries_totals.csv, and np_ratios.csv into this project's exports/
+# folder by default (pass a second argument to run_lab_batch to write
+# somewhere else instead).
+#
+# Copy this file, rename it, and edit the numbers for your next batch —
+# every past formulation you keep this way is a permanent, diffable
+# record instead of another spreadsheet tab. Sections are all optional;
+# a file with just electrodes: skips the slurry/N-P CSVs.
+
+electrodes:
+  - name: "Bare (Cathode)"
+    foil_weight_g: 0.0085
+    foil_thickness_mm: 0.02
+    disc_weight_g: 0.0205
+    disc_thickness_mm: 0.058
+    am_fraction: 0.8
+    theoretical_capacity_mAhg: 170
+    diameter_mm: 14.0
+
+  - name: "MX (Cathode)"
+    foil_weight_g: 0.0085
+    foil_thickness_mm: 0.02
+    disc_weight_g: 0.0206
+    disc_thickness_mm: 0.057
+    am_fraction: 0.8
+    theoretical_capacity_mAhg: 170
+    diameter_mm: 14.0
+
+  # Illustrative only. Swap in a real anode measurement to get a real
+  # N/P ratio; this is just here so np_pairs below has something to
+  # divide against.
+  - name: "Example anode (illustrative)"
+    foil_weight_g: 0.0085
+    foil_thickness_mm: 0.02
+    disc_weight_g: 0.030
+    disc_thickness_mm: 0.08
+    am_fraction: 0.8
+    theoretical_capacity_mAhg: 350
+    diameter_mm: 14.0
+
+slurries:
+  - name: "Super-P and MXene (Cathode)"
+    total_dry_solids_g: 3.0
+    extra_solvent_g: 6.0        # extra pure NMP added on top
+    components:
+      - {name: LFP, ratio: 0.8}
+      - {name: Super-P, ratio: 0.1}
+      - {name: PVDF, ratio: 0.1, concentration_pct: 10}   # 10% PVDF-in-NMP stock
+
+  - name: "CFAl (Cathode)"
+    total_dry_solids_g: 0.5
+    components:
+      - {name: VGCF, ratio: 0.8}
+      - {name: CMC, ratio: 0.2, concentration_pct: 1.5}   # 1.5% CMC-in-water stock
+
+np_pairs:
+  - anode: "Example anode (illustrative)"
+    cathode: "Bare (Cathode)"
+  - anode: "Example anode (illustrative)"
+    cathode: "MX (Cathode)"

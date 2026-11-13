@@ -1,0 +1,55 @@
+# =========================================================
+# SEM — all batches in one file
+# =========================================================
+# Each batch is one imaging session/folder under Data/SEM/. Images auto-
+# discover from the real "#<position>-<subindex><SampleName>.jpg"
+# filename convention (e.g. "#1-1MXCu.jpg") — sample name, position and
+# replicate number are all read straight off the filename, nothing to
+# list by hand. A matching ".txt" instrument sidecar (when present) is
+# used automatically for accurate per-image µm/pixel calibration
+# (PixelSize, nm/pixel) instead of the cruder scale_um_fallback guess —
+# see analysis/sem/discovery.py.
+#
+# cross_section / surface / powder are the three analysis "roles":
+#   cross_section — interface/gap/contact-area/quality-score analysis
+#   surface       — porosity + particle-size analysis
+#   powder        — particle-size analysis only
+# Each is enabled independently and reads its own subfolder (`folder:`,
+# matched case-insensitively — real folders vary: "Cross Section" vs
+# "Cross section"). Leave a role's `folder:` unset (or enabled: false) to
+# skip it for a batch that doesn't have that kind of image.
+#
+# sample_overrides: per-sample crop / gap-detection tuning within one
+# role — only needed for samples where the defaults (no crop, percentile
+# gap threshold 5%, min_size 100, is_delaminated: true) aren't right.
+
+default_batch: null   # set to your first batch's name once you add one
+
+batches: {}
+
+# TEMPLATE — the structure of one batch (values are only an
+# example). To add a batch: copy this
+# block below `batches:`, remove the leading `# ` from each line,
+# replace `{}` after `batches:` with nothing, and change the values.
+#
+#   KSS_SEM:
+#     data_subfolder: SEM/20260424_KSS_SEM
+#     scale_um_fallback: 30.0
+#     use_sidecar_scale: true
+#
+#     cross_section:
+#       folder: "Cross Section"
+#       sample_overrides:
+#         - sample: BareLMP
+#           gap_params: {percentile_threshold: 5, min_size: 100, is_delaminated: true}
+#         - sample: MXLMP
+#           gap_params: {percentile_threshold: 2, min_size: 200, is_delaminated: false}
+#
+#     surface:
+#       folder: "Surface"
+#
+#     powder:
+#       enabled: false
+#
+#   # LiCu session — filenames carry no sample-name suffix ("#1-1.jpg"),
+#   # every image in this folder is the one "LiCu" sample.

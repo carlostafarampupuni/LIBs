@@ -1,0 +1,94 @@
+# =========================================================
+# Cycle — all batches in one file
+# =========================================================
+# Each batch under `batches:` is fully self-contained (its own raw
+# folder, axis limits, tick spacing). Run a notebook on a specific batch:
+# project.import_cycle(batch="Batch1") — the batch you name is remembered
+# by every later call (analyze_cycle, plot_cycle, ...) until you switch
+# it, so you only ever pass batch= once per run.
+#
+# default_batch is used when you don't pass batch= at all.
+#
+# Batch keys are just Batch1, Batch2, ... across every technique file in
+# this project (uniform naming) — what each one actually IS lives in the
+# comment above it, not in the key itself. Edit those comments freely;
+# renumbering here needs no code changes anywhere, just update any
+# notebook cells using the old key names and this file's default_batch: above.
+#
+# Tick control: xtick_step/ytick_step pick an EXACT spacing that always
+# lands on both ends of xlim/ylim (no missing/odd ticks). xticks_n picks
+# an exact tick COUNT instead. Leave both unset for a clean 5-tick
+# default instead of matplotlib's own guess.
+#
+# Drop a brand new batch's raw files straight into Data/Cycle/<name>/ and
+# it shows up here automatically next run, with default axis/plot
+# settings (see CycleBatchConfig in config/schema.py) — no need to add a
+# batches: entry by hand first. An explicit entry below for the same
+# name always wins, so tune any batch here
+# whenever you want settings different from default.
+
+default_batch: null   # set to your first batch's name once you add one
+
+auto_discover:
+  subfolder: Cycle
+
+batches: {}
+
+# TEMPLATE — the structure of one batch (values are only an
+# example). To add a batch: copy this
+# block below `batches:`, remove the leading `# ` from each line,
+# replace `{}` after `batches:` with nothing, and change the values.
+#
+#   Batch1:
+#     data_subfolder: Cycle/Batch1
+#
+#     capacity_plot:
+#       figsize: medium
+#       legend_loc: "best"
+#       xlim: [0, 50]
+#       ylim: [0, 240]
+#       xtick_step: 10
+#       ytick_step: 40
+#
+#     ce_plot:
+#       figsize: medium
+#       legend_loc: "best"
+#       xlim: [0, 50]
+#       ylim: [80, 105]
+#       xtick_step: 10
+#       ytick_step: 5
+#
+#     # Voltage-vs-capacity profiles. project.import_cycle_profiles(batch=...)
+#     # pulls these ordinal cycles out of each sample's *_Cycle.csv and
+#     # prints each formation cycle's charge/discharge capacity + CE to the
+#     # console (battery data on cycle 1 vs 2 can be messy — use those
+#     # numbers to judge which looks cleanest). plot_cycle_formation() then
+#     # draws ONE comparison figure (every sample overlaid, legend = sample
+#     # names) of whichever single cycle formation_plot_cycle names; leave
+#     # it unset to use the first entry in formation_cycles. plot_cycle_
+#     # profiles() draws custom_cycles (profiles_plot: below), one figure
+#     # per sample.
+#     profiles:
+#       formation_cycles: [1, 2]         # import both so you can compare
+#       formation_plot_cycle: 2          # which ONE to actually draw — set to 2 if cycle 2 looks cleaner
+#       custom_cycles: [2, 4, 50, 100]   # any cycles you want
+#       modes: [charge, discharge]
+#
+#     formation_plot:
+#       figsize: medium
+#       legend_loc: "best"
+#       xlim: [0, 240]
+#       ylim: [2.5, 4.0]
+#       ytick_step: 0.5
+#
+#     profiles_plot:
+#       figsize: medium
+#       legend_loc: "best"
+#       xlim: [0, 240]
+#       ylim: [2.5, 4.0]
+#       ytick_step: 0.5
+#
+#
+#
+#
+#   # Was "60DEG" — 60°C condition (accelerated aging).

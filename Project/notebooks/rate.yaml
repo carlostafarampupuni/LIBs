@@ -1,0 +1,122 @@
+# =========================================================
+# Rate — all batches in one file
+# =========================================================
+# Each batch under `batches:` is fully self-contained. Run a notebook on
+# a specific batch: project.import_rate(batch="Batch1") — remembered
+# by every later call (plot_rate, ...) until you switch it.
+#
+# default_batch is used when you don't pass batch= at all.
+#
+# Batch keys are just Batch1, Batch2, ... across every technique file in
+# this project (uniform naming) — what each one actually IS lives in the
+# comment above it, not in the key itself. Edit those comments freely; renumbering
+# here needs no code changes anywhere, just update any notebook cells
+# using the old key names and this file's default_batch: above.
+#
+# Tick control: xtick_step/ytick_step pick an EXACT spacing that always
+# lands on both ends of xlim/ylim. xticks_n picks an exact tick COUNT
+# instead. Leave both unset for a clean 5-tick default.
+#
+# Drop a brand new batch's raw files straight into Data/Rate/<name>/ and
+# it shows up here automatically next run, with default axis/plot
+# settings (see RateBatchConfig in config/schema.py) — no need to add a
+# batches: entry by hand first. An explicit entry below for the same
+# name always wins, so tune any batch here
+# whenever you want settings different from default.
+#
+# NOTE: this only helps for folders in the *_Capacity.csv/*_Cycle.csv
+# format this importer reads. A folder in a genuinely different raw
+# format (e.g. a defaultdata_N.txt time/current/voltage export) still
+# gets auto-registered as a batch, but importing it just prints "No
+# *_Capacity.csv files found" and imports nothing — self-healing, not a
+# crash, but it still needs real raw-format support written before it'll
+# produce anything. That's a separate job from adding a batch entry here.
+
+default_batch: null   # set to your first batch's name once you add one
+
+auto_discover:
+  subfolder: Rate
+
+batches: {}
+
+# TEMPLATE — the structure of one batch (values are only an
+# example). To add a batch: copy this
+# block below `batches:`, remove the leading `# ` from each line,
+# replace `{}` after `batches:` with nothing, and change the values.
+#
+#   Batch1:
+#     data_subfolder: Rate/Batch1
+#     electrode_type: cathode
+#
+#     # Division lines every 5 cycles (where the C-rate step changes) — set
+#     # c_rate_lines explicitly instead if the steps are irregular.
+#     c_rate_step: 5
+#
+#     capacity_plot:
+#       figsize: medium
+#       legend_loc: "best"
+#       xlim: [0, 45]
+#       ylim: [0, 180]
+#       xtick_step: 5
+#       ytick_step: 30
+#
+#     ce_plot:
+#       figsize: medium
+#       legend_loc: "best"
+#       xlim: [0, 45]
+#       ylim: [80, 105]
+#       xtick_step: 5
+#       ytick_step: 5
+#
+#     # Voltage-vs-capacity profiles. project.import_rate_profiles(batch=...)
+#     # pulls these ordinal cycles out of each sample's *_Cycle.csv and
+#     # prints each formation cycle's charge/discharge capacity + CE to the
+#     # console (battery data on cycle 1 vs 2 can be messy — use those
+#     # numbers to judge which looks cleanest). plot_rate_formation() then
+#     # draws ONE comparison figure (every sample overlaid, legend = sample
+#     # names) of whichever single cycle formation_plot_cycle names; leave
+#     # it unset to use the first entry in formation_cycles. plot_rate_
+#     # profiles() draws custom_cycles PLUS the auto rate-capability
+#     # sequence (profiles_plot: below) — see rate_capability: for how that
+#     # sequence is numbered. plot_rate_profiles() always plots discharge
+#     # only, regardless of modes: below (formation still respects modes:).
+#     #
+#     # Setting formation_cycles here ALSO changes plot_rate()'s classic
+#     # capacity/CE-vs-cycle-number plot: it now excludes these formation
+#     # cycles and renumbers what's left so the cycle right after formation
+#     # reads as "cycle 1" (cycle 3 -> "cycle 1" with 2 formation cycles) —
+#     # leave formation_cycles empty to keep that plot's old 0-indexed,
+#     # nothing-excluded behavior.
+#     profiles:
+#       formation_cycles: [1, 2]     # import both so you can compare
+#       formation_plot_cycle: 1      # which ONE to actually draw — set to 2 if cycle 2 looks cleaner
+#       custom_cycles: [5, 10, 15, 20]   # any cycles you want, on top of the auto sequence
+#       modes: [charge, discharge]
+#
+#     # With 2 formation_cycles above and interval 5 (defaults to
+#     # c_rate_step if you leave interval unset): actual cycle 3 becomes
+#     # "cycle 1" of the rate-capability sequence, then every 5 cycles
+#     # after that (3, 8, 13, 18, ...) — stopping automatically wherever
+#     # this sample's data ends.
+#     rate_capability:
+#       interval: 5
+#       modes: [discharge]
+#
+#     formation_plot:
+#       figsize: medium
+#       legend_loc: "best"
+#       xlim: [0, 180]
+#       ylim: [2.5, 4.0]
+#       ytick_step: 0.5
+#
+#     profiles_plot:
+#       figsize: medium
+#       legend_loc: "best"
+#       xlim: [0, 180]
+#       ylim: [2.5, 4.0]
+#       ytick_step: 0.5
+#
+#   # Was "20260702" — same 25°C condition, a different run (2026-07-02) —
+#   # same raw format as Batch1, so it's ready to go. Axis limits/ticks
+#   # copied from Batch1 as a starting point; tune once you've looked at
+#   # this run's actual capacity range.

@@ -1,0 +1,29 @@
+# How to cite LIBs. GitHub reads this file and shows a "Cite this repository"
+# button on the repository page (APA and BibTeX, ready to copy).
+# After Zenodo gives LIBs a DOI, uncomment the `doi:` line and paste it in.
+cff-version: 1.2.0
+message: "If LIBs helps your research, please cite it as below."
+type: software
+title: "LIBs: battery analysis software"
+abstract: >-
+  Free, open-source software that turns raw battery cycler and potentiostat
+  files (NEWARE, WonATech, BioLogic, IVIUM, ESPEC) into publication-ready
+  figures, a table of numbers and written findings, without coding. It covers
+  GCD/CE, cycling, rate, dQ/dV, EIS, DRT, XPS, CV, FTIR, SEM, GITT and Tafel,
+  and scales to hundreds of cells and public datasets.
+authors:
+  - family-names: Mpupuni
+    given-names: Carlos Tafara
+    affiliation: Chungnam National University
+    # orcid: "https://orcid.org/0000-0000-0000-0000"
+version: 1.0.0
+# date-released: 2026-11-20
+# doi: 10.5281/zenodo.0000000
+license: MIT
+repository-code: "https://github.com/carlostafarampupuni/LIBs"
+keywords:
+  - battery
+  - electrochemistry
+  - lithium-ion
+  - impedance spectroscopy
+  - data analysis

@@ -1,0 +1,31 @@
+# =========================================================
+# Curated workbook figures (used by sheets.ipynb)
+# =========================================================
+# For results that already exist as a hand-built workbook (a collaborator's processed data,
+# or old results whose raw files are gone): the numbers are plotted as they are, no import
+# or analysis. Each sheet is x, y, x1, y1, ... ; a y header is the legend label and is matched
+# to config.yaml's samples for the colour (Bare1, Bare2 -> Bare).
+# kind: gcd | profile | cycle | ce | cycle_ce | rate | eis | tafel | ftir | line | scatter
+# Every figure: sheet, kind, size, xlim/ylim, xticks/yticks ({start, stop, step}), legend_loc,
+# samples (only these columns), labels ({column: label}), invert_y, hide_yaxis, zooms (extra
+# figures with their own axis settings). cycle_ce also takes y2lim/y2ticks (CE columns end in _CE).
+# Figures -> Figures/Sheets/<batch>/, plot data -> Exports/PlotData/.
+
+figures:
+  formats: [svg]
+
+default_batch: Batch1
+batches:
+  Batch1:
+    workbook: Curated/results.xlsx       # relative to Data/
+    figures:
+      Cycle:                             # figure name = sheet name unless `sheet:` is given
+        kind: cycle_ce
+        size: huge
+        ylim: [0, 200]
+        y2lim: [0, 110]
+        legend_loc: lower left
+      # Profile:
+      #   kind: profile
+      #   zooms:
+      #     - {name: Profile_zoom, xlim: [0, 20]}

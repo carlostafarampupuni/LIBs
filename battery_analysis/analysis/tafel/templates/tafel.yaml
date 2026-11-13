@@ -1,0 +1,74 @@
+# =========================================================
+# Tafel / Butler–Volmer kinetics from galvanostatic pulses (used by tafel.ipynb)
+# =========================================================
+# Each pulse file = one state of charge: a titration step, a relaxation rest
+# (its end potential = the OCV), then short +/- current pulses. The Tafel point
+# of each pulse is its END potential vs log10 of the current density.
+#
+# Five i0 estimates per state, side by side (see battery_analysis/analysis/tafel/analysis.py):
+#   tafel          Tafel extrapolation: one straight line per branch, slopes FITTED to the
+#                  points (|eta| >= tafel_min_eta_V), both forced to meet at the OCV; the
+#                  crossing is log i0. Drawn in the figures. (Tafel slopes in mV/dec, r2.)
+#   excel          the hand-built workbook method, done objectively: alpha fixed,
+#                  lines through the OCV, intercept by least squares (not by eye)
+#   butler_volmer  full Butler–Volmer fit to all points: i0, alpha_a, alpha_c free (+ errors)
+#   tafel_region   straight lines only where |eta| >= tafel_region_min_eta_V
+#   linear         micro-polarisation, |eta| <= linear_max_eta_V
+# Rct = RT / (F i0) for each. Outputs: Exports/Tafel_<batch>.xlsx (results, points,
+# check against a workbook), Figures/Tafel/<batch>/ (+ their data in Exports/PlotData/).
+
+settings:
+  temperature_K: 298.15
+  state_name: DOD                # label used in figures/tables
+  states: {start: 10, step: 10}  # label of the 1st, 2nd, ... pulse file (or a list: [10, 20, 30])
+  overpotential: ocv             # ocv: E_end - OCV (as in the workbooks) | local: E_end - E just before the pulse
+  ir_correction: none            # none (as in the workbooks) | auto (from the instant jump at each pulse start) | a resistance in ohm
+  repeat: last                   # a current applied twice: use its last (or first) pulse
+  tafel_pulse_s: auto            # length of the Tafel pulses (auto = the most common short pulse)
+  pulse_max_s: 30                # current steps up to this long count as pulses
+  ocv_rest_min_s: 300            # the relaxation rest before the pulses is at least this long
+  fixed_alpha: 0.5               # for the 'excel' method
+  tafel_min_eta_V: 0.05          # tafel: points with |eta| below this are left out of the lines
+  tafel_region_min_eta_V: 0.05
+  linear_max_eta_V: 0.015
+  methods: [tafel, excel, butler_volmer, tafel_region, linear]
+  # currents_A: [1.0e-9, 2.0e-9]  # use only these nominal currents (others left out)
+
+figures:
+  size: small                    # per-state Tafel plot
+  summary_size: medium           # i0 / Rct vs state
+  per_state: true
+  formats: [svg]
+  # clean per-state figure (no legend or text; labels go on in Affinity):
+  fit_lines: tafel               # dashed lines + dashed i0 line from: tafel (fitted slopes, meet at OCV) | excel | tafel_region | butler_volmer
+  charge_color: grey             # grey | same (sample colour) | "#hex"; discharge = sample colour (config.yaml)
+  line_color: "0.35"             # fit lines
+  show_ocv: true                 # solid grey line at the OCV
+  ocv_color: "0.6"
+  show_butler_volmer: false      # BV curve over the points
+  # label: state                 # short corner text: state ("70") | sample ("CSCY 70")
+  # scales (plotting/axes.py): round limits, evenly spaced ticks
+  axes: batch                    # batch (every figure on one scale) | sample (one scale per sample) | figure
+  x_scale: span                  # span: same width + tick step, each box symmetric about its OCV | absolute: same E limits
+  # xlim: [1.5, 2.5]             # set limits yourself; ticks start at the lower limit
+  # xstep: 0.25                  # optional tick step (otherwise chosen to divide the range evenly)
+  # ylim: [-5.5, -2.5]
+  # ystep: 0.5
+  # per_sample:                  # limits for one sample only
+  #   CSCY: {xlim: [2.0, 2.4], ylim: [-5, -2.5]}
+  summary_methods: [tafel, butler_volmer]
+
+default_batch: Batch1
+
+batches:
+
+  Batch1:
+    samples:                     # comment a sample out (#) to leave it out
+      SampleA:
+        folder: Tafel/Batch1/SampleA        # relative to Data/
+        # electrode — one of:
+        # area_cm2: 1.13
+        particle: {radius_um: 6.75}
+        # particle: {capacity_nAh: 3.28, specific_capacity_mAh_g: 1500, density_g_cm3: 1.7}
+        # reference_workbook: Tafel/Batch1/SampleA.xlsx   # hand-built workbook to check against
+        # ir_correction: auto                              # any setting can be changed per sample

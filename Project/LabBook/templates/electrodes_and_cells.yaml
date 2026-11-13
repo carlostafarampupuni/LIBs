@@ -1,0 +1,52 @@
+# =========================================================
+# {{id}} — {{title}}
+# =========================================================
+# Punched discs -> loading, coating density, areal capacity, C-rate
+# currents, N/P ratio, and the cells you built from them.
+#
+# These numbers feed your analysis directly. In cycle.yaml / rate.yaml
+# write, instead of typing a mass:
+#     active_mass_g: labbook:{{id}}/C1
+# (or labbook:{{id}}/C1.loading_mg_cm2 for any other value).
+
+id: {{id}}
+title: "{{title}}"
+date: {{date}}
+operator: Your Name
+status: in progress
+tags: [electrodes, cells]
+
+conditions:
+  calendering: ""
+  drying: ""
+  glovebox_H2O_ppm: ""
+  glovebox_O2_ppm: ""
+
+# shared by every disc below (any disc can override any of them)
+electrode_defaults:
+  foil_weight_g: 0.0085
+  foil_thickness_mm: 0.020
+  diameter_mm: 14.0
+  am_fraction: 0.8
+  theoretical_capacity_mAhg: 170
+  c_rates: [0.1, 0.2, 0.5, 1, 2, 5]
+
+electrodes:
+  - {name: C1, sample: Bare, disc_weight_g: 0.0205, disc_thickness_mm: 0.058}
+  - {name: C2, sample: Bare, disc_weight_g: 0.0206, disc_thickness_mm: 0.057}
+  # an anode with different defaults:
+  # - {name: A1, disc_weight_g: 0.030, disc_thickness_mm: 0.080, theoretical_capacity_mAhg: 350, foil_weight_g: 0.0150}
+
+np_pairs: []
+  # - {anode: A1, cathode: C1}
+
+cells:
+  - {id: CR2032-01, cathode: C1, anode: Na metal, electrolyte: "2026-10-22a/L-1", electrolyte_uL: 60, separator: GF/D, cycler: NEWARE, channel: "", protocol: ""}
+
+log:
+  - time: ""
+    text: ""
+
+notes: |
+
+results: |

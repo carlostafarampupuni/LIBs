@@ -1,0 +1,52 @@
+# =========================================================
+# {{id}} — {{title}}
+# =========================================================
+# An additive dispersed in a binder solution you ALREADY HAVE
+# (e.g. 8 wt% PVDF in NMP from materials.yaml `stocks:`), for a coating.
+# The wt% is of the final mass, so the PVDF ends up slightly below 8%
+# (the report shows the final composition).
+
+id: {{id}}
+title: "{{title}}"
+date: {{date}}
+operator: Your Name
+status: planned
+tags: [coating, AdditiveA, PVDF]
+
+aim: |
+  Thin additive A/PVDF coating on Al foil.
+
+conditions:
+  location: ""
+  temperature: room temperature
+  mixing: ""
+  coating: doctor blade, gap 1 µm
+  drying: glive box vacuum oven, 25 °C, 12 h
+
+materials_used:
+  - {name: AdditiveA, supplier: Sigma-Aldrich, lot: ""}
+  - {name: 8 wt% PVDF in NMP, supplier: "made in lab", lot: ""}
+
+recipes:
+  - id: C-1
+    name: 1 wt% AdditiveA in 8 wt% PVDF/NMP
+    type: mixture
+    total_g: 0.5
+    components:
+      - {name: AdditiveA, wt_pct: 1.0}
+      - {name: 8 wt% PVDF in NMP, balance: true}
+    weighed: {}
+    procedure:
+      - Weigh additive A, add the PVDF/NMP stock on top.
+      - Mix ? min at ? rpm until homogeneous.
+      - Coat on Al foil; dry.
+
+log:
+  - time: ""
+    text: ""
+
+notes: |
+
+results: |
+
+next_steps: |

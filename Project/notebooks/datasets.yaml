@@ -1,0 +1,180 @@
+# =========================================================
+# Public (and your own large) datasets — datasets.ipynb
+# =========================================================
+# One block per dataset. `download` fetches `source`, `ingest` reads `files`
+# (globs inside the raw folder) with `reader`, cleans them to the BDF column
+# standard and writes Parquet to `store`. Re-running ingest only reads files
+# that changed. Paths are relative to the project folder.
+#
+# Readers: bdf (any .bdf.csv/.bdf.parquet), csv_map (map columns by hand),
+#          neware (.ndax/.nda/BTSDA exports), zhu2022_eis (that EIS dataset).
+#          New format = one new file in battery_analysis/datasets/readers/.
+#
+# meta: applies to every cell of the dataset; meta_by_pattern: by file name.
+# Always keep license + citation: you must cite these when you publish.
+
+store: Data/Public/store
+raw_root: Data/Public/raw
+workers: 4                  # parallel processes for ingest
+
+datasets:
+
+  bdf_examples:
+    # 11 real tests, 5 institutions, 8 cyclers: coin, pouch, 21700, Na-ion 32140;
+    # rate, GITT, HPPC, DCIR, pulse, pseudo-OCV. The best test bench for readers.
+    source: {zenodo: 22230066, files: ["*.bdf.csv", "*.bdf.parquet", "README.md", "datasets.json", "sha256sums.txt"]}
+    reader: bdf
+    files: ["*.bdf.csv", "*.bdf.parquet"]
+    meta_by_pattern:
+      "*Na*": {chemistry: Na-ion}
+      "*LiLNMO*": {chemistry: LNMO / Li}
+      "*LiGr*": {chemistry: graphite / Li}
+      "*21700*": {chemistry: NMC811 / graphite-SiOx (LG M50)}
+      "*SLPB*": {form_factor: pouch}
+    labels:                     # glob on the cell name -> legend text (no raw file names in figures)
+      "faraday__lg-INR21700M50*": "LG M50 21700"
+      "FZJ__INR21700*": "21700 (HPPC)"
+      "SINTEF__SLPBA842124HV*": "Kokam pouch"
+      "SINTEF__NaCR32140*": "Na-ion 32140 (GITT)"
+      "shandong__nacr32140*": "Na-ion 32140 (pulse)"
+      "SINTEF__LiGrR2032*": "Gr‖Li coin"
+      "SINTEF__G20M7*": "G20M7 (C/30)"
+      "DLR__LiGrHydra0b__*GITT*": "Gr‖Li (GITT)"
+      "DLR__LiGrHydra0b__*POCV*": "Gr‖Li (pseudo-OCV)"
+      "DLR__LiLNMOHydra0b__*GITT*": "LNMO‖Li (GITT)"
+      "DLR__LiLNMOHydra0b__*POCV*": "LNMO‖Li (pseudo-OCV)"
+    license: CC-BY-4.0
+    citation: "Battery Data Alliance, Canonical Dataset Examples of the Battery Data Format, Zenodo 22230066 (2026); raw data doi:10.5281/zenodo.18986774"
+
+  empa_aurora_subset:
+    # 1 NMC/graphite coin cell, ~1000 cycles, from Empa's robotic platform (BDF parquet).
+    source: {zenodo: 15794498, files: ["*.parquet", "*.json"]}
+    reader: bdf
+    files: "*.bdf.parquet"
+    meta: {chemistry: NMC / graphite, form_factor: coin, institution: Empa}
+    license: CC-BY-4.0
+    citation: "Empa, Batteries & Supercaps 2025, doi:10.1002/batt.202500155; Zenodo 15794498"
+
+  empa_aurora_full:
+    # The full set: 199 NMC622/graphite coin cells, ONE 2.5 GB zip (9.3 GB unpacked; only
+    # the Parquet + metadata, ~1 GB, are extracted). Each cell has a JSON-LD metadata file
+    # (BattINFO): electrode loadings, electrolyte, separator, builder -> store.metadata().
+    source: {zenodo: 15481956, unzip: ["*.bdf.parquet", "*.metadata.json", "ro-crate-metadata.json"]}
+    reader: bdf
+    files: "empa__ccid*/*.bdf.parquet"
+    meta: {chemistry: NMC / graphite, form_factor: coin, institution: Empa}
+    labels: {"*": "Cell {n}"}
+    group:                      # colour + legend by build batch; the date is in the product ID (yymmdd_...)
+      from: "TestObject.productID"        # (dateCreated has a wrong year for one batch: 07/10/25 vs 241007)
+      regex: "^(\\d\\d)(\\d\\d)(\\d\\d)_"
+      format: "20{1}-{2}-{3}"
+      name: Build date
+    license: CC-BY-4.0
+    citation: "Empa, Batteries & Supercaps 2025, doi:10.1002/batt.202500155; Zenodo 15481956"
+
+  zhu2022_eis:
+    # EIS during cycle aging of commercial 18650 cells (NCA, NCM, NCM+NCA), 11 cells.
+    # The same record has 1.7 GB of cycling data (Dataset_1..3 zips) for later.
+    source: {zenodo: 6405084, files: ["Impedance raw data and fitting data.zip"], unzip: true}
+    reader: zhu2022_eis
+    files: "Impedance raw data and fitting data/*/CY*.xlsx"
+    labels: {"*": "{chemistry} 18650, {condition}"}
+    license: CC-BY-4.0
+    citation: "Zhu et al., Nat. Commun. 13, 2261 (2022); Zenodo 6405084"
+
+  # Your own cells, e.g. pouch cells from NEWARE (copy files into Data/Public/raw/own_pouch/):
+  # own_pouch:
+  #   reader: neware
+  #   files: "*.ndax"
+  #   meta: {form_factor: pouch, chemistry: "...", institution: CNU}
+
+# =========================================================
+# FIGURES — house style, saved to Figures/Datasets/<dataset>/<name>_<dataset>.svg
+# =========================================================
+# kind: capacity | retention | ce | profiles | voltage_time | nyquist | eol_by_group
+# cells / exclude: globs on cell names (all cells of the dataset if omitted)
+# size: small | medium | large | huge | [w, h] inches
+# axes: xlim / xstep / xticks, ylim / ystep / yticks (omitted = round limits from the data)
+# legend_loc, legend: false. Up to 8 cells: house markers + one colour per cell;
+# more: thin lines coloured by the dataset's `group`.
+figures:
+
+  empa_capacity_all:
+    kind: capacity
+    dataset: empa_aurora_full
+    exclude: ["empa__ccid000086"]          # dead cell (0 mAh, voltage at the ±10.5 V limits)
+    size: large
+    ylim: [0, 3]
+    legend_loc: outside
+  empa_retention_all:
+    kind: retention
+    dataset: empa_aurora_full
+    exclude: ["empa__ccid000086", "empa__ccid000101"]   # 101: capacity jumps up mid-test
+    size: large
+    ylim: [20, 120]
+    ystep: 20
+    legend_loc: outside
+  empa_ce_all:                          # 199 noisy CE traces are unreadable: median + quartile band per batch
+    kind: ce
+    dataset: empa_aurora_full
+    exclude: ["empa__ccid000086", "empa__ccid000101"]
+    aggregate: true
+    size: large
+    ylim: [97, 100.5]
+    ystep: 0.5
+    legend_loc: outside
+  empa_retention_by_batch:
+    kind: retention
+    dataset: empa_aurora_full
+    exclude: ["empa__ccid000086", "empa__ccid000101"]
+    aggregate: true
+    size: large
+    ylim: [40, 110]
+    ystep: 10
+    legend_loc: outside
+  empa_eol_by_batch:
+    kind: eol_by_group
+    dataset: empa_aurora_full
+    exclude: ["empa__ccid000086", "empa__ccid000101"]
+    size: medium
+  empa_retention_median_cells:          # the median-life cell of each build batch
+    kind: retention
+    dataset: empa_aurora_full
+    cells: ["*000119", "*000088", "*000235", "*000022", "*000173", "*000058", "*000206"]
+    legend_text: label_group             # "Cell 119 (2025-01-27)"
+    size: medium
+    ylim: [20, 110]
+    ystep: 10
+    legend_loc: outside
+
+  m50_rate_profiles:                    # LG M50 21700: discharge at 0.1, 0.5, 1 and 1.5 C
+    kind: profiles
+    dataset: bdf_examples
+    cells: "faraday__lg-INR21700M50*"
+    cycles: [2, 3, 4, 5]
+    cycle_labels: {2: "0.1C", 3: "0.5C", 4: "1C", 5: "1.5C"}
+    parts: discharge
+    colour: "#5B9BD5"
+    ylim: [2.5, 4.5]
+    ystep: 0.5
+    legend_loc: lower left
+  pouch_dcir:
+    kind: voltage_time
+    dataset: bdf_examples
+    cells: "SINTEF__SLPBA842124HV*"
+    colour: "#5B9BD5"
+    size: large
+    legend: false
+  na32140_gitt:
+    kind: voltage_time
+    dataset: bdf_examples
+    cells: "SINTEF__NaCR32140*"
+    colour: "#E8746A"
+    size: large
+    legend: false
+  nca18650_nyquist:
+    kind: nyquist
+    dataset: zhu2022_eis
+    cells: "NCA_CY25_0.5_1"
+    colour: "#E8746A"
+    legend_loc: outside

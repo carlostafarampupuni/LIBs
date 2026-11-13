@@ -1,0 +1,56 @@
+# =========================================================
+# CV — all batches in one file
+# =========================================================
+# CV has no raw-instrument-file import step, same reasoning as FTIR — a
+# curated Excel workbook (one sheet per cell) is the only source.
+# excel_path is relative to paths.data_root.
+#
+# Each `cells:` entry is one sheet: voltage_prefix + scan_rates
+# reconstruct the column pairs positionally (1st scan rate -> column
+# "{voltage_prefix}1", current = the literal scan-rate value itself as a
+# column header, e.g. 0.1) — matches how the raw workbook is laid out
+# (Ref1/0.1, Ref2/0.2, ... / DS1/0.1, DS2/0.2, ...).
+#
+# scan_rate_palette is shared by every cell in the batch, so the
+# reference cell and the doped cell plot the SAME color for the SAME
+# scan rate — direct visual comparison between them.
+
+default_batch: null   # set to your first batch's name once you add one
+
+batches: {}
+
+# TEMPLATE — the structure of one batch (values are only an
+# example). To add a batch: copy this
+# block below `batches:`, remove the leading `# ` from each line,
+# replace `{}` after `batches:` with nothing, and change the values.
+#
+#   Batch1:
+#     excel_path: 0_DS410.xlsx
+#
+#     scan_rate_palette:
+#       "0.1": "#4D4D4D"
+#       "0.2": "#1F77B4"
+#       "0.3": "#FF7F0E"
+#       "0.4": "#2CA02C"
+#       "0.5": "#D62728"
+#
+#     cells:
+#       - sample: Ref
+#         sheet: CVRef
+#         voltage_prefix: Ref
+#         scan_rates: [0.1, 0.2, 0.3, 0.4, 0.5]
+#
+#       - sample: DS410
+#         sheet: CVDS410
+#         voltage_prefix: DS
+#         scan_rates: [0.1, 0.2, 0.3, 0.4, 0.5]
+#
+#     plot:
+#       figsize: medium
+#       xlabel: "Voltage (V)"
+#       ylabel: "Current (A)"
+#       xlim: [3.0, 4.8]
+#       ylim: [-0.01, 0.01]
+#       xtick_step: 0.3
+#       ytick_step: 0.005
+#       legend_loc: "upper left"

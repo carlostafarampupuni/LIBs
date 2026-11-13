@@ -1,0 +1,132 @@
+# =========================================================
+# GCD — all batches in one file (metal plating/stripping)
+# =========================================================
+# Each batch under `batches:` is fully self-contained. Run a notebook on
+# a specific batch: project.import_gcd(batch="Batch1") — remembered by
+# every later call (analyze_gcd, plot_gcd, ...) until you switch it.
+# default_batch is used when you don't pass batch= at all.
+#
+# data_subfolder is relative to Data/. current_density_mA_cm2 is
+# auto-detected from a "GCD<number>" folder name; set it explicitly
+# otherwise (as Batch1 does).
+#
+# Tick control: xtick_step/ytick_step pick an EXACT spacing that always
+# lands on both ends of xlim/ylim. xticks_n picks an exact tick COUNT
+# instead.
+
+default_batch: Batch1
+
+# Any new folder in Data/GCD/ becomes a batch on its own, with the
+# settings below. To change one batch's settings, add it under
+# `batches:` with the same name (the entry under batches: always wins).
+auto_discover:
+  subfolder: GCD
+  defaults:
+    cutoff_v: 1.0
+    plating_sign: -1
+    strip_plateau: middle
+    voltage_plot: {figsize: medium}
+    profile_plot: {figsize: medium}
+    ce_plot: {figsize: medium}
+    nucleation_plot: {figsize: medium}
+    capacity_plot: {figsize: medium}
+
+batches:
+
+  # Example batch: metal plating/stripping, NEWARE exports (BTSDA .xlsx)
+  # in Data/GCD/Batch1.
+  # NEWARE protocol: plate 4 h at 1.54 mA (CC DChg), strip to 1 V (CC Chg).
+  Batch1:
+    data_subfolder: GCD/Batch1
+    current_density_mA_cm2: 1.0   # 1.54 mA on a 14 mm disc; import prints the electrode area it implies — check it
+
+    cutoff_v: 1.0                 # NEWARE files: the stripping cut-off of the step plan
+    plating_sign: -1
+    # How the analysis reads each plating and stripping half-cycle
+    # (each is cut into fractions of its own length; 0.15 = first 15 %):
+    nuc_frac: 0.15        # look for the nucleation dip (the most negative voltage) in the first 15 % of plating
+    plateau_frac: 0.25    # growth voltage = average of the last 25 % of plating, once the dip is over
+    strip_plateau: middle # stripping voltage = median of 20–80 % of stripping. "middle" because these
+                          # cells strip to the 1 V cut-off, so the end of stripping is the jump to 1 V,
+                          # not a plateau. (Li-Li batches strip for a fixed time and use "end".)
+    spike_z_thresh: 3.5   # a sudden voltage jump (a soft short) is flagged when it is 3.5× bigger than
+                          # the normal point-to-point noise around it. Lower = more sensitive.
+
+    # Cells used — comment a line out (#) to leave that cell out.
+    # Every listed cell is drawn and analysed; the first listed sample is
+    # the reference the findings compare against.
+    # Sample names and colours: config.yaml (samples:, aliases:).
+    cells:
+      - SampleA-1
+      #- SampleA-2
+      - SampleB-1
+      #- SampleB-2
+      - SampleC-1
+     # - SampleC-2
+      - SampleD-1
+      #- SampleD-2
+    profile_cycles: [1, 2,]   # voltage-capacity, separate figures: these cycles, later = lighter
+
+    # Each figure has two blocks: <name>_plot = all samples on one axis (_all),
+    # <name>_separate_plot = one figure per sample. Each has its own figsize,
+    # limits and legend. Comment a whole block out to not draw that figure.
+    # Axis limits are yours — [min, max]; ticks land on both ends with the step.
+    voltage_plot:               # voltage vs time
+      figsize: medium
+      legend_loc: "best"
+      xlim: [0, 100]             # h — 3 cycles of 8 h; widen as the test runs
+      xtick_step: 20
+      ylim: [-0.2, 1.0]         # V — down to plating, up to the 1 V cut-off
+      ytick_step: 0.2
+    voltage_separate_plot:      # one figure per sample
+      figsize: small
+      legend_loc: "best"
+      xlim: [0, 40]             # h — 3 cycles of 8 h; widen as the test runs
+      xtick_step: 10
+      ylim: [-0.2, 1.0]         # V — down to plating, up to the 1 V cut-off
+      ytick_step: 0.2
+    profile_plot:               # voltage vs capacity
+      figsize: medium
+      legend_loc: "best"
+      combined_cycle: 1         # the cycle compared across samples in the _all figure
+      xlim: [0, 5]              # mAh cm-2 — 4 mAh cm-2 plated per cycle
+      xtick_step: 1
+      ylim: [-0.1, 0.1]        # V — zoomed on the plateaus; the jump to 1 V is cut off
+      ytick_step: 0.1
+    profile_separate_plot:      # one figure per sample
+      figsize: [medium, small]  # one size per figure in cells order; the last repeats (one word = all the same)
+      legend_loc: "best"
+      xlim: [0, 5]              # mAh cm-2 — 4 mAh cm-2 plated per cycle
+      xtick_step: 1
+      ylim: [-0.1, 0.1]        # V — zoomed on the plateaus; the jump to 1 V is cut off
+      ytick_step: 0.1
+    ce_plot:                    # coulombic efficiency vs cycle
+      figsize: medium
+      legend_loc: "best"
+      xlim: [0, 4]              # cycle
+      xtick_step: 1
+      ylim: [50, 110]           # %
+      ytick_step: 10
+    ce_separate_plot:      # one figure per sample
+      figsize: small
+      legend_loc: "best"
+      xlim: [0, 4]              # cycle
+      xtick_step: 1
+      ylim: [50, 110]           # %
+      ytick_step: 10
+    nucleation_plot:            # cycle-1 plating, zoomed on the dip (voltage in mV)
+      figsize: medium
+      legend_loc: "best"
+      xlim: [0, 1]            # mAh cm-2 — the first 12 min of plating
+      xtick_step: 0.2
+      ylim: [-30, 10]           # mV — the dip sits at -10 to -25 mV
+      ytick_step: 10
+    nucleation_separate_plot:      # one figure per sample
+      figsize: small
+      legend_loc: "best"
+      xlim: [0, 1]            # mAh cm-2 — the first 12 min of plating
+      xtick_step: 0.2
+      ylim: [-30, 10]           # mV — the dip sits at -10 to -25 mV
+      ytick_step: 10
+
+

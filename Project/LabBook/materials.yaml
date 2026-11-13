@@ -1,0 +1,93 @@
+# =========================================================
+# The shelf — every chemical and stock solution, written ONCE.
+# =========================================================
+# Recipes refer to these by name OR alias (not case-sensitive), so
+# "G2", "DEGDME", "DMG" and "diglyme" all mean the same bottle.
+# Check M and density against your own bottle's label/CoA; the values
+# below are standard literature values.
+#
+# Add a new chemical: copy any block and change it.
+# Add a stock solution (made once, used for weeks): see `stocks:` at
+# the bottom.
+
+materials:
+  # ---- additives ----
+  - name: AdditiveA
+    formula: ""                  # e.g. LiNO3 — digits become subscripts in the report
+    molar_mass_g_mol: 100.0      # replace with your additive's value
+    density_g_mL: 2.0            # replace with your additive's value
+    supplier: ""
+    cas: ""
+    aliases: [additive A]
+    notes: Example additive — rename it and fill in its real values.
+
+  # ---- salts ----
+  - name: NaPF6
+    formula: NaPF6
+    molar_mass_g_mol: 167.95
+    cas: 21324-39-0
+  - name: LiPF6
+    formula: LiPF6
+    molar_mass_g_mol: 151.91
+    cas: 21324-40-3
+  - name: NaClO4
+    formula: NaClO4
+    molar_mass_g_mol: 122.44
+  - name: NaTFSI
+    formula: NaN(SO2CF3)2
+    molar_mass_g_mol: 303.14
+  - name: LiTFSI
+    formula: LiN(SO2CF3)2
+    molar_mass_g_mol: 287.09
+
+  # ---- solvents ----
+  - name: diglyme
+    formula: C6H14O3
+    molar_mass_g_mol: 134.17
+    density_g_mL: 0.943
+    cas: 111-96-6
+    aliases: [G2, DEGDME, DMG, diethylene glycol dimethyl ether]
+  - name: DME
+    formula: C4H10O2
+    molar_mass_g_mol: 90.12
+    density_g_mL: 0.867
+    cas: 110-71-4
+    aliases: [G1, monoglyme]
+  - name: NMP
+    formula: C5H9NO
+    molar_mass_g_mol: 99.13
+    density_g_mL: 1.028
+    cas: 872-50-4
+  - name: EC
+    formula: C3H4O3
+    molar_mass_g_mol: 88.06
+    density_g_mL: 1.321
+  - name: EMC
+    formula: C4H8O3
+    molar_mass_g_mol: 104.10
+    density_g_mL: 1.006
+  - name: DMC
+    formula: C3H6O3
+    molar_mass_g_mol: 90.08
+    density_g_mL: 1.069
+  - name: FEC
+    formula: C3H3FO3
+    molar_mass_g_mol: 106.05
+    density_g_mL: 1.454
+
+  # ---- binders / carbons ----
+  - name: PVDF
+    density_g_mL: 1.78
+    aliases: [polyvinylidene fluoride]
+  - name: PVDF-HFP
+    density_g_mL: 1.78
+  - name: Super P
+    aliases: [Super-P, SP, carbon black]
+
+# Stock solutions: composition = wt% of each solute; balance = the rest.
+# Use one in a recipe by its name, e.g.  {name: 8 wt% PVDF in NMP, balance: true}
+stocks:
+  - name: 8 wt% PVDF in NMP
+    composition: {PVDF: 8}
+    balance: NMP
+    made_in: ""          # the entry id where you made it, e.g. 2026-09-10a

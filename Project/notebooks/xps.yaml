@@ -1,0 +1,220 @@
+# =========================================================
+# XPS automatic fitting — peak models + batches (used by xps.ipynb)
+# Template from battery_analysis/analysis/xps/templates — the region models below are a
+# battery-interphase starting library: CHECK THEM AGAINST YOUR OWN CHEMISTRY.
+# =========================================================
+# All binding energies here are AFTER charge correction (C 1s C–C at 284.8 eV).
+# Every component:
+#   name         label used in tables/plots
+#   center       starting BE (eV)
+#   window       [min, max] the fitted BE may move within
+#   fwhm         starting FWHM (eV); fwhm_bounds: [min, max]
+#   lg           Lorentzian fraction (0.3 = GL(30), Avantage/Casa-like). vary_lg: true to free it
+#   shape        gl (default, symmetric) | la (asymmetric, CasaXPS-style LA(alpha, beta, gauss))
+#                la is for metals and graphitic sp2 carbon / CNT. Example:
+#                {name: "C sp2", center: 284.4, window: [284.1, 284.7], shape: la,
+#                 alpha: 1.2, beta: 5, gauss: 0.6, vary_asym: true}
+# Doublets (2p, 3d, 4f): put `splitting` and `ratio` at region level (inherited by all its
+# components) or per component. `center` is then the 2p3/2 (lower-BE) line.
+# Easiest way to adjust windows: the tuner cell in xps.ipynb (saves back into this file).
+# A component that isn't present simply fits to ~0 area — it does no harm to list it.
+
+settings:
+  background: shirley        # shirley | tougaard | smart (Shirley clipped to data, like Avantage) | linear
+  n_avg: 5                   # points averaged at each end for the background anchors
+  min_snr: 4                 # below this the region is reported "no signal" and not fitted
+  share_fwhm: false          # true = all components in a region share one FWHM
+  n_starts: 10               # random restarts per fit; keeps the best (avoids local minima)
+  monte_carlo_runs: 100      # error-bar refits per spectrum (0 = skip)
+  charge_correction:
+    enabled: true
+    region: C1s
+    reference: 284.8         # eV for adventitious / C–C, C–H
+    search: [282.0, 286.5]   # instrument-BE window to look for that peak
+    # fixed: 0.70            # uncomment to force the same shift for every sample
+  quantification:
+    use_workbook_sf: true    # read sensitivity factors from the Avantage "Peak Table" sheet
+    rsf:                     # sensitivity factors (Thermo Avantage ALTHERMO1). Used for every batch,
+                             # including ones with no Avantage workbook (e.g. a collaborator's .dat files)
+      C1s: 1.0
+      O1s: 2.881
+      F1s: 4.118
+      N1s: 1.676
+      P2p: 1.353
+      Li1s: 0.061
+      # Ti2p: ...            # add from Avantage if Ti ever shows a signal
+      # S2p: ...
+    ke_exponent: 0.75        # escape-depth correction λ ∝ KE^0.75 — reproduces Avantage at% to ±0.13
+    transmission_exponent: 0 # Avantage exports are already transmission-corrected
+    source_energy: 1486.6    # Al Kα
+  component_defaults:
+    fwhm: 1.4
+    fwhm_bounds: [0.8, 2.2]
+    lg: 0.3
+
+# ---------------------------------------------------------
+# Publication figures (pubplot.py) — one file per sample × region + survey
+# ---------------------------------------------------------
+figures:
+  size: small                # small | medium | large | huge (style.fig_sizes) or [w, h] inches
+  formats: [svg]             # add png for quick previews
+  legend: inside             # inside | separate (own file per region) | both | none
+  legend_loc: upper left
+  min_area_pct_shown: 1.0    # components smaller than this are not drawn or listed
+  fill_alpha: 0.75
+  raw_marker_size: 4
+  raw_every: 1               # 2 = plot every second raw point (less dense)
+  headroom: 0.06             # minimum space above the tallest peak; raised only if the legend needs it
+  max_headroom: 1.0
+  pretty_labels: true        # Li2CO3 -> Li₂CO₃, LixPOyFz -> LiₓPOᵧF_z, " / " -> "/"
+  # legend_fontsize: 6.5     # default = project legend_style (7)
+  regions:                   # x-axis per region (high -> low), exact tick spacing
+    C1s:  {x_range: [296, 280], xtick_step: 4}
+    O1s:  {x_range: [538, 526], xtick_step: 3}
+    F1s:  {x_range: [693, 681], xtick_step: 3}
+    Li1s: {x_range: [60, 52],   xtick_step: 2}
+    P2p:  {x_range: [144, 128], xtick_step: 4}
+    N1s:  {x_range: [406, 394], xtick_step: 3}
+    Ti2p: {x_range: [470, 450], xtick_step: 5}
+    S2p:  {x_range: [174, 158], xtick_step: 4}
+    Al2p: {x_range: [80, 68],   xtick_step: 3}
+    Si2p: {x_range: [108, 96],  xtick_step: 3}
+  survey:
+    x_range: [1200, 0]
+    xtick_step: 300
+    label_size: 6.5
+    auger:                   # Auger lines labelled on the survey
+      - {label: "F KLL", be: 832}
+      - {label: "O KLL", be: 978}
+    extra_labels: []         # unscanned elements to mark, e.g. {label: "Mn 2p", be: 642}
+    stack:                   # all samples in ONE figure (Figures/XPS/<batch>/Survey_stack_<batch>.svg)
+      enabled: true
+      offset: 1.0            # vertical spacing between traces (each trace is 0–1)
+      # which samples / order: the batch's `samples:` list (or its `stack_samples:`)
+      colors: {}             # e.g. {Bare: "#6B7280"}; default = config.yaml sample colours / project palette
+      # size: [2.2, 2.6]     # default = figures.size
+
+# =========================================================
+# BATCHES — same idea as eis.yaml / cycle.yaml: repeat experiments are
+# separate batches, analysed with the same rules above and tracked apart.
+# Outputs: Figures/XPS/<batch>/..._<batch>.svg, each figure's data for Origin / SigmaPlot in
+#          Exports/PlotData/XPS/<batch>/, and the tables in Exports/XPS_<batch>.xlsx
+# =========================================================
+default_batch: Batch1
+
+# Drop a new batch's files into Data/XPS/Batch2/ (any name matching the
+# pattern) and it is picked up automatically next run with default
+# settings — add an entry below only if it needs something different.
+auto_discover:
+  subfolder: XPS
+  pattern: "Batch*"
+
+batches:
+
+  Batch1:
+    # What to load — `data_subfolder` (relative to Data/), or `source:` = a file, a folder,
+    # or a list (relative to this YAML). Each file is recognised automatically:
+    #   Avantage workbook (.xls with "<Region> Scan" sheets)      -> fitted here
+    #   single spectrum: BE, raw, sum, background, peaks...      -> already fitted (XPSPeak etc.): plotted as-is
+    #   single spectrum: 2 columns (BE, counts)                  -> fitted here
+    # Single-spectrum filenames must contain sample + region, e.g. BareF1s.dat, MxCu_Cycle_P2p.xlsx
+    data_subfolder: XPS/Batch1
+    mode: auto               # auto | plot (only already-fitted files, never fit) | fit (refit everything)
+    # survey_source: ...     # only if no source has a survey sheet
+    # Samples analysed, plotted and exported — comment a line out (#) to leave one out.
+    # Leave the list out entirely to use every sample found. Order = stacked-survey order.
+    # samples:
+    #   - SampleA
+    #   - SampleB
+    # stack_samples: [SampleA]       # optional: a different set just for the stacked survey
+    # regions:                       # optional: change a shared region model for THIS batch only
+    #   F1s: {fit_range: [680, 693]}
+
+regions:
+
+  C1s:
+    fit_range: [281.0, 295.5]
+    components:
+      - {name: "C–C / C–H",       center: 284.8, window: [284.5, 285.1], color: "#9E9E9E"}
+      - {name: "C–O / CH2 (PVDF)", center: 286.3, window: [285.8, 286.9], color: "#56B4E9"}
+      - {name: "C=O",             center: 287.8, window: [287.2, 288.4], color: "#009E73"}
+      - {name: "O–C=O",           center: 288.9, window: [288.4, 289.5], color: "#CC79A7"}
+      - {name: "Li2CO3 / CO3",    center: 290.0, window: [289.5, 290.5], color: "#0072B2"}
+      - {name: "CF2 (PVDF)",      center: 290.9, window: [290.5, 291.6], color: "#F0E442"}
+
+  O1s:
+    fit_range: [526.0, 537.5]
+    components:
+      - {name: "M–O (lattice)",       center: 529.5, window: [527.8, 530.4], color: "#4D4D4D"}
+      - {name: "Li2CO3 / C=O",        center: 531.6, window: [531.0, 532.2], color: "#0072B2"}
+      - {name: "C–O / LixPOyFz",      center: 532.8, window: [532.2, 533.6], color: "#56B4E9"}
+      - {name: "adsorbed / P–O–F",    center: 534.0, window: [533.6, 535.0], color: "#DDCC77"}
+
+  F1s:
+    fit_range: [681.0, 692.5]
+    components:
+      - {name: "LiF",               center: 685.0, window: [684.6, 685.6], color: "#E69F00"}
+      - {name: "LixPOyFz / LixPFy", center: 686.4, window: [685.8, 687.0], color: "#A6761D"}
+      - {name: "C–F (PVDF)",        center: 687.8, window: [687.0, 688.8], color: "#F0E442"}
+
+  Li1s:
+    fit_range: [51.5, 60.0]
+    # Li 1s is one broad, featureless peak: more than 2 components is not
+    # statistically meaningful here — trust F1s/C1s/O1s for speciation.
+    share_fwhm: true
+    components:
+      - {name: "Li–O / Li2CO3", center: 55.2, window: [54.5, 55.6], color: "#0072B2"}
+      - {name: "LiF",           center: 56.0, window: [55.6, 56.6], color: "#E69F00"}
+
+  P2p:
+    fit_range: [128.0, 142.0]
+    splitting: 0.87          # P 2p3/2 – 2p1/2
+    ratio: 0.5               # 2p1/2 : 2p3/2 area
+    components:
+      - {name: "phosphate / LixPOy", center: 133.8, window: [133.2, 134.6], color: "#66A61E"}
+      - {name: "LixPOyFz",           center: 135.4, window: [134.7, 136.2], color: "#A6761D"}
+      - {name: "LiPF6 / LixPFy",     center: 136.9, window: [136.3, 137.7], color: "#7570B3"}
+
+  N1s:
+    fit_range: [394.0, 406.0]
+    components:
+      - {name: "C–N / amine",     center: 399.8, window: [399.2, 400.4], color: "#56B4E9"}
+      - {name: "N+ / N–C=O",      center: 401.3, window: [400.6, 402.2], color: "#CC79A7"}
+      - {name: "Li3N / LiNxOy",   center: 397.8, window: [396.8, 398.6], color: "#009E73"}
+
+  Ti2p:
+    fit_range: [450.0, 470.0]
+    splitting: 5.8
+    ratio: 0.5
+    fwhm_ratio: 1.3          # 2p1/2 is broader (Coster–Kronig)
+    components:
+      - {name: "Ti–C (MXene)", center: 455.0, window: [454.5, 455.6], splitting: 6.1, color: "#4D4D4D"}
+      - {name: "Ti2+ / Ti3+",  center: 456.6, window: [455.8, 457.4], color: "#56B4E9"}
+      - {name: "TiO2",         center: 458.8, window: [458.3, 459.3], splitting: 5.7, color: "#E69F00"}
+
+  S2p:
+    fit_range: [158.0, 174.0]
+    splitting: 1.18
+    ratio: 0.5
+    components:
+      - {name: "sulfide",       center: 161.8, window: [161.0, 162.6], color: "#E69F00"}
+      - {name: "sulfite / S–O", center: 167.0, window: [166.2, 167.8], color: "#56B4E9"}
+      - {name: "sulfate",       center: 168.8, window: [168.2, 169.6], color: "#0072B2"}
+
+  Al2p:
+    fit_range: [69.0, 80.0]
+    splitting: 0.44          # Al 2p3/2 – 2p1/2 (often unresolved)
+    ratio: 0.5
+    components:
+      - {name: "Al (metal)",     center: 72.8, window: [72.4, 73.2], shape: la, alpha: 1.2, beta: 5, gauss: 0.5, color: "#4D4D4D"}
+      - {name: "Al2O3 / AlPO4",  center: 74.7, window: [74.0, 75.5], color: "#0072B2"}
+      - {name: "AlF3 / Al–F",    center: 76.4, window: [75.8, 77.2], color: "#E69F00"}
+
+  Si2p:
+    fit_range: [96.0, 108.0]
+    splitting: 0.61
+    ratio: 0.5
+    components:
+      - {name: "Si0",   center: 99.4,  window: [98.9, 99.9],  color: "#4D4D4D"}
+      - {name: "SiOx",  center: 101.6, window: [100.6, 102.4], color: "#56B4E9"}
+      - {name: "SiO2",  center: 103.4, window: [102.8, 104.0], color: "#0072B2"}

@@ -1,0 +1,32 @@
+# Software
+.venv/
+__pycache__/
+*.pyc
+*.egg-info/
+.pytest_cache/
+.ipynb_checkpoints/
+.DS_Store
+
+# Your data and results never go to GitHub. Only the empty folders
+# (kept by .gitkeep files) are shared, so the layout stays the same.
+Project/Data/**
+!Project/Data/**/
+!Project/Data/**/.gitkeep
+Project/database/*
+!Project/database/.gitkeep
+Project/Figures/**
+!Project/Figures/**/
+!Project/Figures/**/.gitkeep
+Project/exports/**
+!Project/exports/**/
+!Project/exports/**/.gitkeep
+Project/LabBook/entries/*
+!Project/LabBook/entries/.gitkeep
+Project/LabBook/reports/*
+!Project/LabBook/reports/.gitkeep
+
+# Any other project folder you make next to Project/ stays private too
+/*/
+!/Project/
+!/battery_analysis/
+!/docs/

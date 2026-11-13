@@ -1,0 +1,91 @@
+# =========================================================
+# EIS — all batches in one file
+# =========================================================
+# Each batch under `batches:` is fully self-contained (its own raw
+# folder, cycle mapping, fitting, plot styling). To run a notebook on a
+# specific batch: project.import_eis(batch="Batch1") — the batch you name
+# is remembered by every later call (fit_eis, analyze_eis, plot_eis, ...)
+# until you switch it, so you only ever pass batch= once per run.
+#
+# default_batch is used when you don't pass batch= at all.
+#
+# MATCHING FILES TO A STAGE — filename_mapping: when one batch holds
+# files from several measurement stages (e.g. 0 h, 6 h, after 50 cycles)
+# whose names follow no shared pattern, match each file EXPLICITLY by a
+# substring of its own name with `filename_mapping:` rather than by digits
+# in the name or file order. A file holding several sweeps back to back
+# splits into runs by its own cycle-number column — no mapping needed.
+#
+# SHORT LABELS: keep sheet_names compact (e.g. "Precyc", not "Precycle")
+# so DRT rows and stage x-ticks stay uniform; labels longer than 6
+# characters are shortened with "…" for DISPLAY only (style.shorten_label).
+#
+# The trend plots' x-axis is the batch's sheet_order, used as an ordinal
+# stage sequence ("Measurement stage"), not a number parsed from labels.
+#
+# Colours live once in config.yaml's samples: list — not here.
+
+default_batch: null   # set to your first batch's name once you add one
+
+# Drop a brand new batch's raw files straight into Data/EIS/<name>/ and
+# it shows up here automatically next run, with default settings (no
+# cycle_mapping/sheets — see EISBatchConfig in config/schema.py) — no
+# need to add a batches: entry by hand first. An explicit entry below
+# for the same name always wins, so tune any batch here whenever you want settings different from default.
+auto_discover:
+  subfolder: EIS
+
+batches: {}
+
+# TEMPLATE — the structure of one batch (values are only an
+# example). To add a batch: copy this
+# block below `batches:`, remove the leading `# ` from each line,
+# replace `{}` after `batches:` with nothing, and change the values.
+#
+#   Batch1:
+#     data_subfolder: EIS/Batch1
+#
+#     # One .mpt per sample, each holding 3 concatenated cycle-sweeps
+#     # (its own BioLogic "cycle number" column goes 1/1/../2/2/../3/3/..,
+#     # confirmed against the real files) — io.py splits these into 3
+#     # runs automatically; they fall through positionally to
+#     # sheet_order[0],[1],[2] (no filename to key off of, there's only
+#     # one file per sample).
+#     cycle_mapping: {}
+#     filename_mapping: {}
+#
+#     sheet_names:
+#       "1": Run1
+#       "2": Run2
+#       "3": Run3
+#
+#     sheet_order: ["1", "2", "3"]
+#
+#     # Square Argand-circle axes. Bound from the real data: largest
+#     # |Z'| / |-Z''| across ADD/DEE, all 3 runs, is ~452 Ω (DEE) — 550
+#     # covers all three runs with headroom, and keeps every run on the
+#     # same scale so they're visually comparable.
+#     sheets:
+#       - {sheet: Run1, xlim: [0, 400], ylim: [-400, 0]}
+#       - {sheet: Run2, xlim: [0, 400], ylim: [-400, 0]}
+#       - {sheet: Run3, xlim: [0, 400], ylim: [-400, 0]}
+#
+#     fitting:
+#       use_model: false
+#       circuit_key: SEI_CT_W
+#       extract_at_freq: true
+#       freq_extraction: {Rs: 10000, Rsei: 1000, Rct: 10, W: 0.1}
+#
+#     plotting:
+#       figsize: small
+#       legend_loc: "best"
+#       axis_defaults: {xlim: null, ylim: null}
+#       evolution:
+#         - {name: ADD, xlim: [0, 400], ylim: [-400, 0]}
+#         - {name: DEE, xlim: [0, 400], ylim: [-400, 0]}
+#       param_plots:
+#         # Sized from the real frequency-extracted values (Rsei ~47-52 Ω,
+#         # Rct ~85-164 Ω, W ~182-252 Ω across the 3 runs), with headroom.
+#         - {param: Rsei, ylabel: "Rsei (Ω)", ylim: [0, 80],  yticks_n: 5, save: Rsei_Batch1.svg}
+#         - {param: Rct,  ylabel: "Rct (Ω)",  ylim: [0, 200], yticks_n: 5, save: Rct_Batch1.svg}
+#         - {param: W,    ylabel: "W (Ω)",    ylim: [0, 300], yticks_n: 7, save: W_Batch1.svg}

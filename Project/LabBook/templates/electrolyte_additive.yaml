@@ -1,0 +1,73 @@
+# =========================================================
+# {{id}} — {{title}}
+# =========================================================
+# Additive (wt% of the FINAL mass) dispersed in a salt/solvent electrolyte.
+# Change the numbers, run `calc` to see what to weigh, weigh, then write
+# what the balance read under `weighed:`. Run `report` for the PDF.
+
+id: {{id}}
+title: "{{title}}"
+date: {{date}}
+operator: Your Name
+status: planned          # planned | in progress | done | failed
+tags: [electrolyte, AdditiveA]
+
+aim: |
+  Prepare 1 M NaPF#sub[6] in diglyme (G2) and disperse additive A
+  in it to test it as an electrolyte additive.
+
+conditions:
+  location: Ar glovebox
+  H2O_ppm: ""
+  O2_ppm: ""
+  temperature: room temperature
+  mixing: paint shaker, 1 h
+
+materials_used:
+  - {name: AdditiveA, supplier: Sigma-Aldrich, lot: "", purity: ""}
+  - {name: NaPF6, supplier: "", lot: "", purity: ""}
+  - {name: diglyme, supplier: "", lot: "", purity: "anhydrous"}
+
+recipes:
+  # 1) the base electrolyte, made by volume
+  - id: E-0
+    name: 1 M NaPF6 in G2
+    type: molar_solution
+    salt: NaPF6
+    solvent: G2
+    molarity_M: 1.0
+    volume_mL: 10
+    # solution_density_g_mL: 1.09    # weigh 1.000 mL once and put it here ->
+    #                                 # the calculator also gives the G2 mass
+    procedure:
+      - Weigh NaPF#sub[6] into a 10 mL volumetric flask.
+      - Add about 7 mL G2, stir until clear, top up to the mark.
+
+  # 2) additive in that electrolyte, by weight
+  - id: L-1
+    name: 1 wt% AdditiveA in 1 M NaPF6/G2
+    type: mixture
+    total_g: 5.0                 # or: basis: {E-0: 4.95}
+    components:
+      - {name: AdditiveA, wt_pct: 1.0}
+      - {name: E-0, balance: true}
+    # want a series instead? replace L-1's single value with:
+    # vary: {component: AdditiveA, wt_pct: [0, 1, 2.5, 5]}
+    weighed: {}                  # after weighing, e.g. {AdditiveA: 0.0502, E-0: 4.9511}
+    procedure:
+      - Weigh additive A into a vial, add the electrolyte on the balance.
+      - Shake 1 h; check for complete dissolution or precipitate.
+
+log:
+  - time: ""
+    text: ""
+  # - time: "14:30"
+  #   text: |
+  #     Solution clear and slightly yellow after 1 h.
+  #     #photo("L-1_after-1h.jpg", caption: [L-1 after 1 h shaking], width: 50%)
+
+notes: |
+
+results: |
+
+next_steps: |

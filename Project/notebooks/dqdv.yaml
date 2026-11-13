@@ -1,0 +1,58 @@
+# =========================================================
+# dQ/dV — all batches in one file
+# =========================================================
+# Reuses the same *_Cycle.csv files Cycle reads — no new raw-file format,
+# so these batches mirror cycle.yaml's batches (same data_subfolder per
+# name) — keep them in sync if you add/rename a batch in cycle.yaml.
+#
+# Run a notebook on a specific batch: project.import_dqdv(batch="Batch1")
+# — remembered by every later call (analyze_dqdv, plot_dqdv, ...) until
+# you switch it. default_batch is used when you don't pass batch= at all.
+#
+# Batch keys are just Batch1, Batch2, ... across every technique file in
+# this project (uniform naming) — what each one actually IS lives in the
+# comment above it, not in the key itself. Edit those comments freely;
+# renumbering here needs no code changes anywhere, just update any
+# notebook cells using the old key names and this file's default_batch: above.
+#
+# Tick control per plot entry: xtick_step/ytick_step pick an EXACT
+# spacing that always lands on both ends of xlim/ylim; xticks_n picks an
+# exact tick COUNT instead. Unset (as below, since xlim/ylim aren't fixed
+# here) falls back to matplotlib's own auto range with a clean 5-tick
+# default once you do set xlim/ylim.
+
+default_batch: null   # set to your first batch's name once you add one
+
+batches: {}
+
+# TEMPLATE — the structure of one batch (values are only an
+# example). To add a batch: copy this
+# block below `batches:`, remove the leading `# ` from each line,
+# replace `{}` after `batches:` with nothing, and change the values.
+#
+#   Batch1:
+#     data_subfolder: Cycle/Batch1
+#
+#     cycles: [1, 2, 5, 10]
+#     modes: [charge, discharge]
+#     smoothing_window: 51
+#     # peak_prominence: null   # auto: 10% of max |dQ/dV|, matching the original
+#
+#     plotting:
+#       figsize: medium
+#       legend_loc: "best"
+#       entries:
+#         - sample: Bare
+#           cycles: [1, 5, 10]
+#           modes: [charge, discharge]
+#           save: Bare_B1.svg
+#         - sample: CFLMP
+#           cycles: [1, 5, 10]
+#           modes: [charge, discharge]
+#           save: CFLMP_B1.svg
+#         - sample: MXLMP
+#           cycles: [1, 5, 10]
+#           modes: [charge, discharge]
+#           save: MXLMP_B1.svg
+#
+#   # Was "60DEG" — 60°C condition (accelerated aging).

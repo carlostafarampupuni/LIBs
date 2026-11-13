@@ -1,0 +1,62 @@
+# =========================================================
+# FTIR — all batches in one file
+# =========================================================
+# FTIR has no raw-instrument-file import step (unlike cycle/rate/gcd) —
+# it only ever comes from a curated Excel workbook, so "importing" here
+# means reading that workbook's points into the database, not discovering
+# raw files. excel_path is relative to paths.data_root.
+#
+# Real exports (e.g. FTIR_export.xlsx) use a TWO-row header per
+# sheet — row 1 names the spectrum type ("Reflectance"/"Absorbance"),
+# row 2 names each sample ("bare Cu", "Mxene-Cu") — header_rows: 2
+# (the default) handles that; set header_rows: 1 for an already-flat
+# sheet whose single header row IS the sample names/labels directly.
+#
+# `column:` under each curve must match the EXACT text in the sheet
+# (case/spacing as exported by the instrument) — `sample:` is the clean
+# name used everywhere else (plots, database, story()).
+
+default_batch: null   # set to your first batch's name once you add one
+
+batches: {}
+
+# TEMPLATE — the structure of one batch (values are only an
+# example). To add a batch: copy this
+# block below `batches:`, remove the leading `# ` from each line,
+# replace `{}` after `batches:` with nothing, and change the values.
+#
+#   Batch1:
+#     excel_path: FTIR/FTIR_export.xlsx
+#
+#     sheets:
+#       - sheet: R-raw
+#         spectrum_type: Reflectance
+#         header_rows: 2
+#         curves:
+#           - {sample: SampleA, column: "sample A"}
+#           - {sample: MXCu,   column: "Mxene-Cu"}
+#         figures:
+#           - [SampleA, SampleB]
+#         plot:
+#           figsize: medium
+#           xlabel: "Wavenumber (cm$^{-1}$)"
+#           invert_x: true
+#           hide_yaxis: true
+#           legend_loc: "best"
+#           save: FTIR_Reflectance_SampleA_vs_SampleB.pdf
+#
+#       - sheet: A-raw-bc10
+#         spectrum_type: Absorbance
+#         header_rows: 2
+#         curves:
+#           - {sample: SampleA, column: "sample A"}
+#           - {sample: MXCu,   column: "Mxene-Cu"}
+#         figures:
+#           - [SampleA, SampleB]
+#         plot:
+#           figsize: medium
+#           xlabel: "Wavenumber (cm$^{-1}$)"
+#           invert_x: true
+#           hide_yaxis: true
+#           legend_loc: "best"
+#           save: FTIR_Absorbance_SampleA_vs_SampleB.pdf

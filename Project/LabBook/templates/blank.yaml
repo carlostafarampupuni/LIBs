@@ -1,0 +1,30 @@
+# =========================================================
+# {{id}} — {{title}}
+# =========================================================
+# Every section is optional. Copy blocks from the other templates
+# (recipes, electrodes, cells) when you need them.
+
+id: {{id}}
+title: "{{title}}"
+date: {{date}}
+operator: Your Name
+status: planned
+tags: []
+
+aim: |
+
+conditions: {}
+
+materials_used: []
+
+recipes: []
+
+log:
+  - time: ""
+    text: ""
+
+notes: |
+
+results: |
+
+next_steps: |

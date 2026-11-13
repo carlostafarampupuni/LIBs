@@ -1,0 +1,65 @@
+# =========================================================
+# Shared project config
+# =========================================================
+# Everything here is shared across EVERY technique: samples, colours,
+# chemistry. Each technique's own tweaking (which raw folder, axis
+# limits, styling) lives in its own file — gcd.yaml, eis.yaml, ... —
+# sitting next to this one.
+
+project:
+  name: Example
+
+paths:
+  data_root: Data
+  database: database/project.db
+  figures_root: Figures
+  exports_root: exports/
+
+# Chemistry/cell metadata — the same for every sample unless a sample
+# overrides a field under its own `cell:` below (only the fields you
+# write are replaced). A raw instrument file can't tell us this.
+cell_defaults:
+  cathode: Na metal (counter electrode)
+  anode: Al foil
+  cell_type: half cell (coin cell)
+  electrolyte: 1 M NaPF6 in diglyme
+  additives: []
+  temperature_c: 25
+
+# =========================================================
+# SAMPLES — the one place for names and colours
+# =========================================================
+# Every technique (GCD, EIS, cycle, ...) takes a sample's name and colour
+# from here, so a sample looks the same in every figure.
+#
+# Six example samples — rename them, change their colours, add or
+# delete blocks to match your own study.
+#
+# aliases: the prefix of the cell file names (the part before "-1", "-2").
+# Add the prefix here when you name the new cells' files — then every
+# technique picks up the right name and colour by itself.
+samples:
+  - name: SampleA
+    color: "#6B7280"            # grey
+    aliases: [SampleA]
+    cell: {anode: Al foil}
+  - name: SampleB
+    color: "#000000"            # black
+    aliases: [SampleB]
+    cell: {anode: Cu foil}
+  - name: SampleC
+    color: "#E8746A"            # red
+    aliases: [SampleC]
+    cell: {anode: coated Al foil}
+  - name: SampleD
+    color: "#5B9BD5"            # blue
+    aliases: [SampleD]
+    cell: {anode: coated Cu foil}
+  - name: SampleE
+    color: "#7B3294"            # purple
+    aliases: [SampleE]
+    cell: {anode: Al foil, additives: [AdditiveA]}
+  - name: SampleF
+    color: "#E69F00"            # orange
+    aliases: [SampleF]
+    cell: {anode: Cu foil, additives: [AdditiveA]}

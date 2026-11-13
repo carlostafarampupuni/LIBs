@@ -1,0 +1,49 @@
+# =========================================================
+# DRT — rides on whichever EIS batch is already imported (eis.yaml)
+# =========================================================
+# run_drt(batch="BatchN") / plot_drt(batch="BatchN") reuse whatever's
+# already been imported under that EIS batch name — nothing here
+# duplicates raw-file config, only plot styling per batch.
+#
+# Row/x-tick labels are read straight from eis.yaml's sheet_names, so
+# they're already short there (auto-truncated further at 6 characters
+# if not — see plotting/style.py shorten_label()) — nothing to repeat
+# here.
+#
+# clim (colour range of the heatmaps) is left unset on purpose: each
+# heatmap then scales to its own data (G.max() * 0.95). If one stage's
+# peak is much larger than the rest and flattens them, add e.g.
+# `clim: [0, 400]` to that contour_per_sample entry to clip it.
+
+default_batch: null   # set to your first batch's name once you add one
+
+batches: {}
+
+# TEMPLATE — the structure of one batch (values are only an
+# example). To add a batch: copy this
+# block below `batches:`, remove the leading `# ` from each line,
+# replace `{}` after `batches:` with nothing, and change the values.
+#
+#   Batch1:
+#     plotting:
+#       figsize: medium
+#       legend_loc: "best"
+#       sheets:
+#         - {sheet: Run1, xlim: [-6, 1], ylim: [0, 5000], xtick_step: 1, peak_labels: ["SEI","CT","Diff"], save: Run1_comparison.svg}
+#         - {sheet: Run2, xlim: [-6, 1], ylim: [0, 5000], xtick_step: 1, peak_labels: ["SEI","CT","Diff"], save: Run2_comparison.svg}
+#         - {sheet: Run3, xlim: [-6, 1], ylim: [0, 5000], xtick_step: 1, peak_labels: ["SEI","CT","Diff"], save: Run3_comparison.svg}
+#       contour_per_sample:
+#         - sample: ADD
+#           sheet_order: [Run1, Run2, Run3]
+#           xlim: [-6, 1]
+#           xtick_step: 1
+#           save: ADD_contour_Batch1.svg
+#         - sample: DEE
+#           sheet_order: [Run1, Run2, Run3]
+#           xlim: [-6, 1]
+#           xtick_step: 1
+#           save: DEE_contour_Batch1.svg
+#       contour_per_cycle:
+#         - {sheet: Run1, xlim: [-6, 1], xtick_step: 1, save: Run1_contour_by_sample.svg}
+#         - {sheet: Run2, xlim: [-6, 1], xtick_step: 1, save: Run2_contour_by_sample.svg}
+#         - {sheet: Run3, xlim: [-6, 1], xtick_step: 1, save: Run3_contour_by_sample.svg}

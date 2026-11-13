@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "battery-analysis"
+version = "1.0.0"
+description = "LIBs: battery and materials analysis — raw cycler files in, publication-ready figures out"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [{name = "Carlos Tafara Mpupuni"}]
+dependencies = [
+    "numpy", "pandas", "scipy", "matplotlib", "pyyaml", "pydantic>=2", "openpyxl",
+    "opencv-python", "scikit-image", "lmfit",
+]
+
+[project.optional-dependencies]
+eis-fitting = ["impedance"]   # equivalent-circuit fitting
+neware = ["NewareNDA"]        # read NEWARE .ndax/.nda directly
+notebooks = ["jupyterlab", "ipywidgets"]
+drt-pydrttools = ["pyDRTtools", "cvxopt"]   # optional second DRT method
+fast-excel = ["python-calamine"]           # faster reading of large Excel exports
+doe = ["pyDOE3", "statsmodels"]   # design of experiments
+datasets = ["pyarrow", "requests", "tqdm"]   # large public datasets (Parquet store)
+all = ["impedance", "NewareNDA", "jupyterlab", "ipywidgets", "pyDOE3", "statsmodels", "pyarrow", "requests", "tqdm", "python-calamine"]
+
+[project.scripts]
+libs = "battery_analysis.cli:main"
+labbook = "battery_analysis.labbook.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["battery_analysis*"]
+
+[tool.setuptools.package-data]
+"battery_analysis.labbook" = ["templates/*", "templates/fonts/*"]
+"battery_analysis.analysis.xps" = ["templates/*"]
+"battery_analysis.analysis.tafel" = ["templates/*"]
+"battery_analysis.analysis.gitt" = ["templates/*"]
+"battery_analysis.analysis.sheets" = ["templates/*"]

@@ -1,0 +1,43 @@
+# =========================================================
+# Diffusion coefficients from galvanostatic titration (used by gitt.ipynb)
+# =========================================================
+# Two methods, side by side (see battery_analysis/analysis/gitt/analysis.py):
+#   gitt    classic Weppner–Huggins from each titration step and its relaxation:
+#           D = 4/(pi tau) L^2 (dEs/dEt)^2, L = r/3 (particle) or thickness (film).
+#           Only valid while tau*D/L^2 << 1 (column gitt_validity_tauD_L2; figure: hollow = invalid).
+#   sqrt_t  the workbook method from one short pulse per state:
+#           D = 4/pi (I V_M/(F S))^2 ((dE/dx)/(dE/dsqrt t))^2
+# Pulse files are read exactly as in tafel.yaml (a titration recorded in its own
+# file, as in coin-cell runs, is picked up for the next pulse file).
+# Outputs: Exports/GITT_<batch>.xlsx, Figures/GITT/<batch>/ (+ data in Exports/PlotData/).
+
+settings:
+  state_name: DOD
+  states: {start: 10, step: 10}
+  pulse_max_s: 30
+  ocv_rest_min_s: 300
+  dEdx: central                  # central | excel (backward difference over two states, as in the workbook)
+  sqrt_t_min_r2: 0.99            # auto pulse choice: the largest charge pulse with E ~ sqrt(t) this linear
+  # sqrt_t_current_A: {10: 1.5e-8, 30: 2.0e-8}   # or name the pulse current per state
+  # initial_ocv_V: 1.608         # OCV before the first state (for dEdx: excel)
+
+figures:
+  size: medium
+  formats: [svg]
+  max_validity: 0.1              # classic-GITT points with tau*D/L^2 above this are drawn hollow
+
+default_batch: Batch1
+
+batches:
+
+  Batch1:
+    samples:
+      SampleA:
+        folder: Tafel/Batch1/SampleA        # the same pulse files as tafel.yaml
+        particle: {radius_um: 6.75}
+        # density_g_cm3: 1.7                # if not in particle:
+        composition:                        # for sqrt_t: molar volume M(x)/density
+          formula: {Li: x, C: 8, H: 3, N: 1, S: 2}
+          x_start: 0.2                      # x at state 0
+          x_end: 1.0                        # x at state 100
+        # reference_workbook: Tafel/Batch1/SampleA.xlsx

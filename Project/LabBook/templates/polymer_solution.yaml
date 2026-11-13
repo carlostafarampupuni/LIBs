@@ -1,0 +1,56 @@
+# =========================================================
+# {{id}} — {{title}}
+# =========================================================
+# Several solutes made up from scratch in a solvent, each by wt% of
+# the final mass. Add another additive = add another line; the solvent
+# (balance) adjusts itself.
+
+id: {{id}}
+title: "{{title}}"
+date: {{date}}
+operator: Your Name
+status: planned
+tags: [coating, AdditiveA, PVDF-HFP]
+
+aim: |
+  additive A + PVDF-HFP solution in NMP for coating.
+
+conditions:
+  location: ""
+  temperature: ""
+  mixing: ""
+  coating: ""
+  drying: ""
+
+materials_used:
+  - {name: AdditiveA, supplier: Sigma-Aldrich, lot: ""}
+  - {name: PVDF-HFP, supplier: "", lot: ""}
+  - {name: NMP, supplier: "", lot: ""}
+
+recipes:
+  - id: P-1
+    name: 1 wt% AdditiveA + 10 wt% PVDF-HFP in NMP
+    type: mixture
+    total_g: 10.0
+    components:
+      - {name: AdditiveA, wt_pct: 1.0}
+      - {name: PVDF-HFP, wt_pct: 10}      # 8 for the other version
+      # another additive? just add a line, e.g.
+      # - {name: Super P, wt_pct: 0.5}
+      # PVDF-HFP from a stock instead of powder? define the stock in
+      # materials.yaml and write:
+      # - {name: PVDF-HFP, wt_pct: 10, from: 15 wt% PVDF-HFP in NMP}
+      - {name: NMP, balance: true}
+    weighed: {}
+    procedure:
+      - Dissolve PVDF-HFP in NMP (? °C, ? h), then add additive A.
+
+log:
+  - time: ""
+    text: ""
+
+notes: |
+
+results: |
+
+next_steps: |
